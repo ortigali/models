@@ -27,6 +27,8 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
+from absl import logging
+
 import tensorflow as tf
 from official.legacy.image_classification.resnet import imagenet_preprocessing
 
@@ -243,6 +245,7 @@ def resnet50(num_classes,
   Returns:
       A Keras model instance.
   """
+  logging.info('resnet50-A')
   input_shape = (224, 224, 3)
   img_input = layers.Input(shape=input_shape, batch_size=batch_size)
   if rescale_inputs:
@@ -258,12 +261,14 @@ def resnet50(num_classes,
   else:
     x = img_input
 
+  logging.info('resnet50-B')
   if tf.keras.backend.image_data_format() == 'channels_first':
     x = layers.Permute((3, 1, 2))(x)
     bn_axis = 1
   else:  # channels_last
     bn_axis = 3
 
+  logging.info('resnet50-C')
   block_config = dict(
       use_l2_regularizer=use_l2_regularizer,
       batch_norm_decay=batch_norm_decay,
@@ -287,16 +292,20 @@ def resnet50(num_classes,
   x = layers.Activation('relu')(x)
   x = layers.MaxPooling2D((3, 3), strides=(2, 2), padding='same')(x)
 
+  logging.info('resnet50-D')
   x = conv_block(
       x, 3, [64, 64, 256], stage=2, block='a', strides=(1, 1), **block_config)
+  logging.info('resnet50-A')
   x = identity_block(x, 3, [64, 64, 256], stage=2, block='b', **block_config)
   x = identity_block(x, 3, [64, 64, 256], stage=2, block='c', **block_config)
 
+  logging.info('resnet50-E')
   x = conv_block(x, 3, [128, 128, 512], stage=3, block='a', **block_config)
   x = identity_block(x, 3, [128, 128, 512], stage=3, block='b', **block_config)
   x = identity_block(x, 3, [128, 128, 512], stage=3, block='c', **block_config)
   x = identity_block(x, 3, [128, 128, 512], stage=3, block='d', **block_config)
 
+  logging.info('resnet50-F')
   x = conv_block(x, 3, [256, 256, 1024], stage=4, block='a', **block_config)
   x = identity_block(x, 3, [256, 256, 1024], stage=4, block='b', **block_config)
   x = identity_block(x, 3, [256, 256, 1024], stage=4, block='c', **block_config)
@@ -308,7 +317,9 @@ def resnet50(num_classes,
   x = identity_block(x, 3, [512, 512, 2048], stage=5, block='b', **block_config)
   x = identity_block(x, 3, [512, 512, 2048], stage=5, block='c', **block_config)
 
+  logging.info('resnet50-G')
   x = layers.GlobalAveragePooling2D()(x)
+  logging.info('resnet50-H')
   x = layers.Dense(
       num_classes,
       kernel_initializer=tf.initializers.random_normal(stddev=0.01),
@@ -317,9 +328,11 @@ def resnet50(num_classes,
       name='fc1000')(
           x)
 
+  logging.info('resnet50-I')
   # A softmax that is followed by the model loss must be done cannot be done
   # in float16 due to numeric issues. So we pass dtype=float32.
   x = layers.Activation('softmax', dtype='float32')(x)
 
   # Create model.
+  logging.info('resnet50-J')
   return tf.keras.Model(img_input, x, name='resnet50')

@@ -273,7 +273,9 @@ def resnet50(num_classes,
       use_l2_regularizer=use_l2_regularizer,
       batch_norm_decay=batch_norm_decay,
       batch_norm_epsilon=batch_norm_epsilon)
+  logging.info('resnet50-C2')
   x = layers.ZeroPadding2D(padding=(3, 3), name='conv1_pad')(x)
+  logging.info('resnet50-C3')
   x = layers.Conv2D(
       64, (7, 7),
       strides=(2, 2),
@@ -283,13 +285,16 @@ def resnet50(num_classes,
       kernel_regularizer=_gen_l2_regularizer(use_l2_regularizer),
       name='conv1')(
           x)
+  logging.info('resnet50-C4')
   x = layers.BatchNormalization(
       axis=bn_axis,
       momentum=batch_norm_decay,
       epsilon=batch_norm_epsilon,
       name='bn_conv1')(
           x)
+  logging.info('resnet50-C5')
   x = layers.Activation('relu')(x)
+  logging.info('resnet50-C6')
   x = layers.MaxPooling2D((3, 3), strides=(2, 2), padding='same')(x)
 
   logging.info('resnet50-D')

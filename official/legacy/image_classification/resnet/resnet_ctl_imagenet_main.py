@@ -99,6 +99,22 @@ def run(flags_obj):
   """
 
   logging.info("HELLLOOO")
+  print("Tensorflow version " + tf.__version__)
+
+  @tf.function
+  def add_fn(x,y):
+    z = x + y
+    return z
+
+  cluster_resolver = tf.distribute.cluster_resolver.TPUClusterResolver(tpu='local')
+  tf.tpu.experimental.initialize_tpu_system(cluster_resolver)
+  strategy = tf.distribute.TPUStrategy(cluster_resolver)
+
+  x = tf.constant(1.)
+  y = tf.constant(1.)
+  z = strategy.run(add_fn, args=(x,y))
+  print(z)
+
 
   return
 

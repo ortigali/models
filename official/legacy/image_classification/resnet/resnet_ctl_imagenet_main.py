@@ -125,6 +125,8 @@ def run(flags_obj):
       num_packs=flags_obj.num_packs,
       tpu_address=flags_obj.tpu)
 
+  logging.info("HELLLOOO-strategy=%s", strategy)
+
   per_epoch_steps, train_epochs, eval_steps = get_num_train_iterations(
       flags_obj)
   if flags_obj.steps_per_loop is None:

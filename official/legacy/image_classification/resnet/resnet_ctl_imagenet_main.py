@@ -98,8 +98,10 @@ def run(flags_obj):
     Dictionary of training and eval stats.
   """
 
+  logging.info("HELLLOOO")
+
   return
-  
+
   keras_utils.set_session_config()
   performance.set_mixed_precision_policy(flags_core.get_tf_dtype(flags_obj))
 

@@ -98,25 +98,7 @@ def run(flags_obj):
     Dictionary of training and eval stats.
   """
 
-  logging.info("HELLLOOO")
-  logging.info("Tensorflow version " + tf.__version__)
-
-  @tf.function
-  def add_fn(x,y):
-    z = x + y
-    return z
-
-  cluster_resolver = tf.distribute.cluster_resolver.TPUClusterResolver(tpu='local')
-  tf.tpu.experimental.initialize_tpu_system(cluster_resolver)
-  strategy = tf.distribute.TPUStrategy(cluster_resolver)
-
-  x = tf.constant(1.)
-  y = tf.constant(1.)
-  z = strategy.run(add_fn, args=(x,y))
-  logging.info(z)
-
-
-  return
+  logging.info("HELLLOOO-A")
 
   keras_utils.set_session_config()
   performance.set_mixed_precision_policy(flags_core.get_tf_dtype(flags_obj))
@@ -163,6 +145,7 @@ def run(flags_obj):
       flags_obj.batch_size,
       flags_obj.log_steps,
       logdir=flags_obj.model_dir if flags_obj.enable_tensorboard else None)
+  logging.info("HELLLOOO-B")
   with distribute_utils.get_strategy_scope(strategy):
     runnable = resnet_runnable.ResnetRunnable(flags_obj, time_callback,
                                               per_epoch_steps)
@@ -172,6 +155,7 @@ def run(flags_obj):
       steps_per_loop * 5 if flags_obj.enable_checkpoint_and_export else None)
   summary_interval = steps_per_loop if flags_obj.enable_tensorboard else None
 
+  logging.info("HELLLOOO-C")
   checkpoint_manager = tf.train.CheckpointManager(
       runnable.checkpoint,
       directory=flags_obj.model_dir,
@@ -179,6 +163,7 @@ def run(flags_obj):
       step_counter=runnable.global_step,
       checkpoint_interval=checkpoint_interval)
 
+  logging.info("HELLLOOO-D")
   resnet_controller = orbit.Controller(
       strategy=strategy,
       trainer=runnable,
@@ -190,6 +175,7 @@ def run(flags_obj):
       summary_dir=flags_obj.model_dir,
       eval_summary_dir=os.path.join(flags_obj.model_dir, 'eval'))
 
+  logging.info("HELLLOOO-E")
   time_callback.on_train_begin()
   if not flags_obj.skip_eval:
     resnet_controller.train_and_evaluate(
@@ -198,9 +184,12 @@ def run(flags_obj):
         eval_interval=eval_interval)
   else:
     resnet_controller.train(steps=per_epoch_steps * train_epochs)
+  logging.info("HELLLOOO-F")
   time_callback.on_train_end()
+  logging.info("HELLLOOO-G")
 
   stats = build_stats(runnable, time_callback)
+  logging.info("HELLLOOO-I")
   return stats
 
 

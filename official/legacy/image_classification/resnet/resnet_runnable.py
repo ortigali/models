@@ -33,7 +33,6 @@ class ResnetRunnable(orbit.StandardTrainer, orbit.StandardEvaluator):
     logging.info("ResnetRunnable-A")
 
     self.strategy = tf.distribute.get_strategy()
-    logging.info("ResnetRunnable-strategy=%s", self.strategy)
     self.flags_obj = flags_obj
     self.dtype = flags_core.get_tf_dtype(flags_obj)
     self.time_callback = time_callback

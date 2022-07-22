@@ -14,6 +14,8 @@
 
 """Runs a ResNet model on the ImageNet dataset using custom training loops."""
 
+from absl import logging
+
 import orbit
 import tensorflow as tf
 from official.legacy.image_classification.resnet import common
@@ -28,6 +30,8 @@ class ResnetRunnable(orbit.StandardTrainer, orbit.StandardEvaluator):
   """Implements the training and evaluation APIs for Resnet model."""
 
   def __init__(self, flags_obj, time_callback, epoch_steps):
+    logging.info("ResnetRunnable-A")
+
     self.strategy = tf.distribute.get_strategy()
     self.flags_obj = flags_obj
     self.dtype = flags_core.get_tf_dtype(flags_obj)
@@ -46,6 +50,7 @@ class ResnetRunnable(orbit.StandardTrainer, orbit.StandardEvaluator):
     # we use per-replica batch size.
     self.batch_size = int(batch_size / self.strategy.num_replicas_in_sync)
 
+    logging.info("ResnetRunnable-B")
     if self.flags_obj.use_synthetic_data:
       self.input_fn = common.get_synth_input_fn(
           height=imagenet_preprocessing.DEFAULT_IMAGE_SIZE,
@@ -61,6 +66,7 @@ class ResnetRunnable(orbit.StandardTrainer, orbit.StandardEvaluator):
         num_classes=imagenet_preprocessing.NUM_CLASSES,
         use_l2_regularizer=not flags_obj.single_l2_loss_op)
 
+    logging.info("ResnetRunnable-C")
     lr_schedule = common.PiecewiseConstantDecayWithWarmup(
         batch_size=flags_obj.batch_size,
         epoch_size=imagenet_preprocessing.NUM_IMAGES['train'],
@@ -83,12 +89,14 @@ class ResnetRunnable(orbit.StandardTrainer, orbit.StandardEvaluator):
     self.test_accuracy = tf.keras.metrics.SparseCategoricalAccuracy(
         'test_accuracy', dtype=tf.float32)
 
+    logging.info("ResnetRunnable-D")
     self.checkpoint = tf.train.Checkpoint(
         model=self.model, optimizer=self.optimizer)
 
     # Handling epochs.
     self.epoch_steps = epoch_steps
     self.epoch_helper = orbit.utils.EpochHelper(epoch_steps, self.global_step)
+    logging.info("ResnetRunnable-E")
     train_dataset = orbit.utils.make_distributed_dataset(
         self.strategy,
         self.input_fn,
@@ -101,6 +109,7 @@ class ResnetRunnable(orbit.StandardTrainer, orbit.StandardEvaluator):
         dtype=self.dtype,
         drop_remainder=True,
         training_dataset_cache=self.flags_obj.training_dataset_cache)
+    logging.info("ResnetRunnable-F")
     orbit.StandardTrainer.__init__(
         self,
         train_dataset,
@@ -121,6 +130,7 @@ class ResnetRunnable(orbit.StandardTrainer, orbit.StandardEvaluator):
           eval_dataset,
           options=orbit.StandardEvaluatorOptions(
               use_tf_function=flags_obj.use_tf_function))
+    logging.info("ResnetRunnable-G")
 
   def train_loop_begin(self):
     """See base class."""

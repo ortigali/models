@@ -147,8 +147,10 @@ def run(flags_obj):
       logdir=flags_obj.model_dir if flags_obj.enable_tensorboard else None)
   logging.info("HELLLOOO-B")
   with distribute_utils.get_strategy_scope(strategy):
+    logging.info("HELLLOOO-B2")
     runnable = resnet_runnable.ResnetRunnable(flags_obj, time_callback,
                                               per_epoch_steps)
+  logging.info("HELLLOOO-B3")
 
   eval_interval = flags_obj.epochs_between_evals * per_epoch_steps
   checkpoint_interval = (

@@ -15,6 +15,7 @@
 """Helper functions for running models in a distributed setting."""
 
 import json
+import logging
 import os
 import tensorflow as tf
 
@@ -82,6 +83,7 @@ def tpu_initialize(tpu_address):
   Returns:
     A TPUClusterResolver.
   """
+  logging.info('tpu_address=%s', tpu_address)
   cluster_resolver = tf.distribute.cluster_resolver.TPUClusterResolver(
       tpu=tpu_address)
   if tpu_address not in ("", "local"):
